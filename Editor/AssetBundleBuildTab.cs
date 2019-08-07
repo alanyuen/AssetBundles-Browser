@@ -156,7 +156,7 @@ namespace AssetBundleBrowser
             m_CopyToStreaming = new ToggleData(
                 false,
                 "Copy to StreamingAssets",
-                "After build completes, will copy all build content to " + m_streamingPath + " for use in stand-alone player.",
+                "After build completes, will copy all build content to " + StreamingPathBuildTarget + " for use in stand-alone player.",
                 m_UserData.m_OnToggles);
 
             m_TargetContent = new GUIContent("Build Target", "Choose target platform to build for.");
@@ -306,7 +306,7 @@ namespace AssetBundleBrowser
                 {
                     string message = "Do you want to delete all files in the directory " + m_UserData.m_OutputPath;
                     if (m_CopyToStreaming.state)
-                        message += " and " + m_streamingPath;
+                        message += " and " + StreamingPathBuildTarget;
                     message += "?";
                     if (EditorUtility.DisplayDialog("File delete confirmation", message, "Yes", "No"))
                     {
@@ -316,8 +316,8 @@ namespace AssetBundleBrowser
                                 Directory.Delete(m_UserData.m_OutputPath, true);
 
                             if (m_CopyToStreaming.state)
-                            if (Directory.Exists(m_streamingPath))
-                                Directory.Delete(m_streamingPath, true);
+                            if (Directory.Exists(StreamingPathBuildTarget))
+                                Directory.Delete(StreamingPathBuildTarget, true);
                         }
                         catch (System.Exception e)
                         {
@@ -361,7 +361,7 @@ namespace AssetBundleBrowser
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 
             if(m_CopyToStreaming.state)
-                DirectoryCopy(m_UserData.m_OutputPath, m_streamingPath);
+                DirectoryCopy(m_UserData.m_OutputPath, StreamingPathBuildTarget);
         }
 
         private static void DirectoryCopy(string sourceDirName, string destDirName)
@@ -409,6 +409,20 @@ namespace AssetBundleBrowser
             m_UserData.m_OutputPath += m_UserData.m_BuildTarget.ToString();
             //EditorUserBuildSettings.SetPlatformSettings(EditorUserBuildSettings.activeBuildTarget.ToString(), "AssetBundleOutputPath", m_OutputPath);
         }
+		
+
+		string m_StreamingPathBuildTarget = null;
+		private string StreamingPathBuildTarget
+		{
+			get
+            {
+				if(m_StreamingPathBuildTarget == null)
+				{
+					m_StreamingPathBuildTarget = Path.Combine(m_streamingPath, m_UserData.m_BuildTarget.ToString());
+				}
+				return m_StreamingPathBuildTarget;
+			}
+		}
 
         //Note: this is the provided BuildTarget enum with some entries removed as they are invalid in the dropdown
         internal enum ValidBuildTarget
